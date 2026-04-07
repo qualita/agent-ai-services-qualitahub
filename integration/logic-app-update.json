@@ -1,0 +1,200 @@
+﻿{
+  "location": "swedencentral",
+  "properties": {
+    "state": "Enabled",
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_a_new_email_arrives_(V3)": {
+          "type": "ApiConnectionNotification",
+          "inputs": {
+            "fetch": {
+              "method": "get",
+              "pathTemplate": {
+                "template": "/v3/Mail/OnNewEmail"
+              },
+              "queries": {
+                "fetchOnlyWithAttachment": false,
+                "folderPath": "Inbox",
+                "importance": "Any",
+                "includeAttachments": false,
+                "subjectFilter": "[AG-DEV]"
+              }
+            },
+            "host": {
+              "connection": {
+                "name": "@parameters('$connections')['office365-1']['connectionId']"
+              }
+            },
+            "subscribe": {
+              "body": {
+                "NotificationUrl": "@listCallbackUrl()"
+              },
+              "method": "post",
+              "pathTemplate": {
+                "template": "/GraphMailSubscriptionPoke/$subscriptions"
+              },
+              "queries": {
+                "fetchOnlyWithAttachment": false,
+                "folderPath": "Inbox",
+                "importance": "Any"
+              }
+            }
+          },
+          "splitOn": "@triggerBody()?['value']"
+        }
+      },
+      "actions": {
+        "Check_User_Access": {
+          "type": "Http",
+          "inputs": {
+            "method": "GET",
+            "uri": "https://salmon-field-0cfd11603.4.azurestaticapps.net/api/auth/check-access",
+            "queries": {
+              "userEmail": "@{triggerBody()?['from']}",
+              "agentCode": "AGT-0001"
+            },
+            "headers": {
+              "X-API-Key": "aais_AGT-0001_e39f58f257616785bde42f075db78f669c527d61cef6d740"
+            }
+          },
+          "runAfter": {}
+        },
+        "Parse_Access_Response": {
+          "type": "ParseJson",
+          "inputs": {
+            "content": "@body('Check_User_Access')",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "allowed": {
+                  "type": "boolean"
+                },
+                "accessLevel": {},
+                "reason": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {},
+                    "email": { "type": "string" },
+                    "name": { "type": "string" }
+                  }
+                },
+                "agent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {},
+                    "code": { "type": "string" },
+                    "name": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Check_User_Access": [ "Succeeded" ]
+          }
+        },
+        "Condition_Is_Allowed": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@body('Parse_Access_Response')?['allowed']",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Call_Agent": {
+              "type": "Http",
+              "inputs": {
+                "method": "POST",
+                "uri": "https://agente-cobros.livelydesert-326381d2.swedencentral.azurecontainerapps.io/execute",
+                "headers": {
+                  "Content-Type": "application/json",
+                  "X-API-Key": "sk-dev-agente-2026-qualita"
+                },
+                "body": {
+                  "message_id": "@{triggerBody()?['id']}",
+                  "sender": "@{triggerBody()?['from']}",
+                  "subject": "@{triggerBody()?['subject']}"
+                }
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Reply_Unauthorized": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "body": {
+                    "Body": "<p>Estimado/a usuario,</p><p>Su solicitud enviada con asunto <b>@{triggerBody()?['subject']}</b> no pudo ser procesada porque su cuenta (<b>@{triggerBody()?['from']}</b>) no tiene permisos para utilizar el agente de cobros.</p><p><b>Motivo:</b> @{body('Parse_Access_Response')?['message']}</p><p>Si considera que debería tener acceso, por favor contacte al administrador del sistema para que le asigne los permisos correspondientes.</p><p>Saludos,<br/>Agent AI Services</p>",
+                    "Importance": "Normal",
+                    "Subject": "RE: @{triggerBody()?['subject']} — Acceso denegado"
+                  },
+                  "host": {
+                    "connection": {
+                      "name": "@parameters('$connections')['office365-1']['connectionId']"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/v2/Mail/ReplyTo/@{encodeURIComponent(triggerBody()?['id'])}"
+                },
+                "runAfter": {}
+              },
+              "Terminate_Unauthorized": {
+                "type": "Terminate",
+                "inputs": {
+                  "runStatus": "Failed",
+                  "runError": {
+                    "code": "Unauthorized",
+                    "message": "User @{triggerBody()?['from']} does not have access to agent AGT-0001. Reason: @{body('Parse_Access_Response')?['reason']} - @{body('Parse_Access_Response')?['message']}"
+                  }
+                },
+                "runAfter": {
+                  "Reply_Unauthorized": [ "Succeeded", "Failed" ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Parse_Access_Response": [ "Succeeded" ]
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "parameters": {
+      "$connections": {
+        "value": {
+          "office365-1": {
+            "connectionId": "/subscriptions/73845088-bc7d-48ea-926d-0022a47944c9/resourceGroups/rg-agent-ai-services-qualitahub-producto/providers/Microsoft.Web/connections/office365-2",
+            "connectionName": "office365-2",
+            "connectionProperties": {},
+            "id": "/subscriptions/73845088-bc7d-48ea-926d-0022a47944c9/providers/Microsoft.Web/locations/swedencentral/managedApis/office365"
+          }
+        }
+      }
+    }
+  }
+}

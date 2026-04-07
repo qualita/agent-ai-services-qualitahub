@@ -29,6 +29,7 @@ Cada agente tiene una API Key asociada. Se envía en el header `X-API-Key`.
 | Agente Cobros | AGT-0001 | `aais_AGT-0001_e39f58f257616785bde42f075db78f669c527d61cef6d740` |
 | Agente Facturas | AGT-0002 | `aais_AGT-0002_9c963cd289a9dc752b20fd784f7a70a945d62dfee8bc1ffa` |
 | Agente Inventario | AGT-0003 | `aais_AGT-0003_63ac2e9a815eb1961717d6c72ee62c1f398d3c395e786c69` |
+| Agente Pedidos JDE | AGT-0004 | `aais_AGT-0004_c64b0a339593400dfbc868e6f740671e518d5145390a581e` |
 
 > Las keys se pueden gestionar en `POST /api/mgmt/api-keys` (crear), `GET /api/mgmt/api-keys` (listar), `DELETE /api/mgmt/api-keys/{id}` (revocar).
 

@@ -35,7 +35,7 @@ export function Layout() {
       <aside className="w-60 bg-qhub-green text-white flex flex-col">
         {/* Brand */}
         <div className="px-5 py-5 border-b border-qhub-green-light/30">
-          <img src="/img/qualitahub_logo_white.svg" alt="QualitaHub" className="w-40 mb-1.5" />
+          <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-7 mb-1.5" />
           <div className="text-[11px] text-qhub-cream-dark leading-tight">Agent AI Services</div>
         </div>
 

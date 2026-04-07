@@ -34,13 +34,14 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         {/* Card */}
         <div className="bg-white rounded shadow-lg border border-qhub-cream-dark/30 overflow-hidden">
-          {/* Header band */}
-          <div className="h-1 bg-qhub-green" />
+          {/* Header band with logo */}
+          <div className="bg-qhub-green px-8 py-5">
+            <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-6" />
+          </div>
 
           <div className="p-8">
-            {/* Logo area */}
+            {/* Sign in heading */}
             <div className="mb-8">
-              <img src="/img/qualitahub_logo_dark.svg" alt="QualitaHub" className="w-44 mb-2" />
               <div className="text-base font-semibold text-slate-800 leading-tight">Sign in</div>
             </div>
 

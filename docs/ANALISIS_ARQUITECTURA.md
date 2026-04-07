@@ -1,4 +1,4 @@
-﻿# Análisis Crítico: Dashboard de Agentes QualitaHub
+# Análisis Crítico: Dashboard de Agentes QualitaHub
 
 ## 1. Modelo de Datos Actual — Radiografía
 

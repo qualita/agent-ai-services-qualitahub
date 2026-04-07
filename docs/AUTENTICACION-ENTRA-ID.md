@@ -1,4 +1,4 @@
-﻿# Migración a Microsoft Entra ID — Login SSO
+# Migración a Microsoft Entra ID — Login SSO
 
 ## Contexto
 

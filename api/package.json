@@ -11,6 +11,8 @@
   "dependencies": {
     "@azure/functions": "^4.5.0",
     "@azure/storage-blob": "^12.31.0",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "tedious": "^19.0.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-﻿# Agent AI Services — Análisis Exhaustivo y Roadmap
+# Agent AI Services — Análisis Exhaustivo y Roadmap
 
 > Fecha: 19 de marzo de 2026  
 > Versión actual: v1.0 (MVP)

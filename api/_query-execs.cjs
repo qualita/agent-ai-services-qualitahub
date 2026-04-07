@@ -1,4 +1,4 @@
-﻿const { Connection, Request } = require('tedious');
+const { Connection, Request } = require('tedious');
 const c = new Connection({
   server: 'sqlserver-agent-ai-services-qualitahub.database.windows.net',
   authentication: { type: 'default', options: { userName: 'sqladmin', password: '<SET_NEW_PASSWORD>' } },

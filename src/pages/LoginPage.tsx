@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/auth/AuthProvider'
 import { AlertCircle } from 'lucide-react'
 

@@ -1,4 +1,4 @@
-﻿# Agent AI Services — Análisis Integral v2
+# Agent AI Services — Análisis Integral v2
 
 > Fecha: 23 de marzo de 2026
 > Versión: v1.5 (post-RBAC, post-rebranding)

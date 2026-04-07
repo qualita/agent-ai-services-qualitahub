@@ -1,4 +1,4 @@
-﻿# Agent AI Services - Dashboard
+# Agent AI Services - Dashboard
 
 ## Project Overview
 

@@ -1,4 +1,4 @@
-﻿import type { Agent, AgentSummary, Execution, ExecutionDetail, DashboardStats, AuthUser, AppUserRecord, GroupRecord } from '@/types'
+import type { Agent, AgentSummary, Execution, ExecutionDetail, DashboardStats, AuthUser, AppUserRecord, GroupRecord } from '@/types'
 
 const API_BASE = '/api'
 

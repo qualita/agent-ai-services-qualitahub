@@ -534,6 +534,116 @@ app.http('listApiKeys', {
   },
 })
 
+/* ── GET /api/auth/check-access ──────────────────────────
+   Called by Logic Apps/agents to verify a user has access
+   to a specific agent before invoking it.
+   Auth: X-API-Key header
+   Query: userEmail, agentCode
+   ─────────────────────────────────────────────────────── */
+
+app.http('authCheckAccess', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'auth/check-access',
+  handler: async (req: HttpRequest, ctx: InvocationContext): Promise<HttpResponseInit> => {
+    const auth = await requireApiKey(req)
+    if (isHttpResponse(auth)) return auth
+
+    const userEmail = req.query.get('userEmail')?.toLowerCase()
+    const agentCode = req.query.get('agentCode')
+
+    if (!userEmail || !agentCode) {
+      return json({ error: 'Query parameters userEmail and agentCode are required' }, 400)
+    }
+
+    // Look up the agent
+    const agents = await query(
+      `SELECT Id, Code, Name FROM Agent WHERE Code = @code AND IsActive = 1`,
+      [{ name: 'code', type: TYPES.NVarChar, value: agentCode }]
+    )
+    if (agents.length === 0) {
+      return json({
+        allowed: false,
+        reason: 'AGENT_NOT_FOUND',
+        message: `Agent with code ${agentCode} not found or inactive`,
+      })
+    }
+    const agent = agents[0]
+    const agentId = agent.Id as number
+
+    // Look up the user
+    const users = await query(
+      `SELECT Id, Email, Name, IsAdmin FROM AppUser WHERE Email = @email AND IsActive = 1`,
+      [{ name: 'email', type: TYPES.NVarChar, value: userEmail }]
+    )
+    if (users.length === 0) {
+      return json({
+        allowed: false,
+        reason: 'USER_NOT_FOUND',
+        message: `User ${userEmail} is not registered or inactive`,
+      })
+    }
+    const user = users[0]
+    const isAdmin = user.IsAdmin === true
+
+    // Admins have full access to all agents
+    if (isAdmin) {
+      ctx.log(`checkAccess: admin ${userEmail} → agent ${agentCode} → FULL`)
+      return json({
+        allowed: true,
+        accessLevel: 'FULL',
+        reason: 'ADMIN',
+        message: 'User is an administrator',
+        user: { id: user.Id, email: user.Email, name: user.Name },
+        agent: { id: agent.Id, code: agent.Code, name: agent.Name },
+      })
+    }
+
+    // Check group + direct access
+    const accessRows = await query(
+      `SELECT AccessLevel FROM (
+         SELECT ga.AccessLevel
+         FROM GroupAgent ga
+         JOIN UserGroup ug ON ga.GroupId = ug.GroupId
+         WHERE ug.UserId = @userId AND ga.AgentId = @agentId
+         UNION ALL
+         SELECT ua.AccessLevel
+         FROM UserAgent ua
+         WHERE ua.UserId = @userId AND ua.AgentId = @agentId
+       ) allAccess`,
+      [
+        { name: 'userId', type: TYPES.BigInt, value: user.Id },
+        { name: 'agentId', type: TYPES.BigInt, value: agentId },
+      ]
+    )
+
+    if (accessRows.length === 0) {
+      ctx.log(`checkAccess: ${userEmail} → agent ${agentCode} → NO_ACCESS`)
+      return json({
+        allowed: false,
+        reason: 'NO_ACCESS',
+        message: `User ${userEmail} does not have access to agent ${agentCode}`,
+        user: { id: user.Id, email: user.Email, name: user.Name },
+        agent: { id: agent.Id, code: agent.Code, name: agent.Name },
+      })
+    }
+
+    // Pick highest access level (FULL > VIEW)
+    const hasFullAccess = accessRows.some((r) => r.AccessLevel === 'FULL')
+    const accessLevel = hasFullAccess ? 'FULL' : (accessRows[0].AccessLevel as string)
+
+    ctx.log(`checkAccess: ${userEmail} → agent ${agentCode} → ${accessLevel}`)
+    return json({
+      allowed: true,
+      accessLevel,
+      reason: 'GRANTED',
+      message: `Access granted with level ${accessLevel}`,
+      user: { id: user.Id, email: user.Email, name: user.Name },
+      agent: { id: agent.Id, code: agent.Code, name: agent.Name },
+    })
+  },
+})
+
 /* ── DELETE /api/mgmt/api-keys/{id} ────────────────────── */
 
 app.http('revokeApiKey', {

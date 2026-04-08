@@ -185,7 +185,7 @@ app.http('adminListUsers', {
   route: 'mgmt/users',
   handler: async (_req: HttpRequest, _ctx: InvocationContext): Promise<HttpResponseInit> => {
     const users = await query(`
-      SELECT u.Id, u.Email, u.Name, u.IsAdmin, u.IsActive, u.CreatedAtUtc
+      SELECT u.Id, u.Email, u.EmailAlias, u.Name, u.IsAdmin, u.IsActive, u.CreatedAtUtc
       FROM AppUser u ORDER BY u.Name
     `)
 
@@ -223,6 +223,7 @@ app.http('adminListUsers', {
       users.map((u) => ({
         id: u.Id,
         email: u.Email,
+        emailAlias: u.EmailAlias || null,
         name: u.Name,
         isAdmin: u.IsAdmin,
         isActive: u.IsActive,
@@ -242,7 +243,7 @@ app.http('adminCreateUser', {
   authLevel: 'anonymous',
   route: 'mgmt/users',
   handler: async (req: HttpRequest, _ctx: InvocationContext): Promise<HttpResponseInit> => {
-    let body: { email?: string; name?: string; password?: string; isAdmin?: boolean; groupIds?: number[] }
+    let body: { email?: string; emailAlias?: string; name?: string; password?: string; isAdmin?: boolean; groupIds?: number[] }
     try {
       body = (await req.json()) as typeof body
     } catch {
@@ -260,11 +261,12 @@ app.http('adminCreateUser', {
     if (existing.length > 0) return json({ error: 'Email already exists' }, 409)
 
     const result = await query(
-      `INSERT INTO AppUser (Email, Name, Password, IsAdmin, IsActive, CreatedAtUtc, UpdatedAtUtc)
+      `INSERT INTO AppUser (Email, EmailAlias, Name, Password, IsAdmin, IsActive, CreatedAtUtc, UpdatedAtUtc)
        OUTPUT INSERTED.Id
-       VALUES (@email, @name, @password, @isAdmin, 1, SYSUTCDATETIME(), SYSUTCDATETIME())`,
+       VALUES (@email, @emailAlias, @name, @password, @isAdmin, 1, SYSUTCDATETIME(), SYSUTCDATETIME())`,
       [
         { name: 'email', type: TYPES.NVarChar, value: body.email.toLowerCase() },
+        { name: 'emailAlias', type: TYPES.NVarChar, value: body.emailAlias?.toLowerCase() ?? null },
         { name: 'name', type: TYPES.NVarChar, value: body.name },
         { name: 'password', type: TYPES.NVarChar, value: body.password || 'entra-id' },
         { name: 'isAdmin', type: TYPES.Bit, value: body.isAdmin ?? false },
@@ -300,7 +302,7 @@ app.http('adminUpdateUser', {
     const id = Number(req.params.id)
     if (isNaN(id)) return json({ error: 'Invalid id' }, 400)
 
-    let body: { email?: string; name?: string; password?: string; isActive?: boolean; isAdmin?: boolean }
+    let body: { email?: string; emailAlias?: string; name?: string; password?: string; isActive?: boolean; isAdmin?: boolean }
     try {
       body = (await req.json()) as typeof body
     } catch {
@@ -339,6 +341,10 @@ app.http('adminUpdateUser', {
     if (body.isAdmin !== undefined) {
       sets.push('IsAdmin = @isAdmin')
       params.push({ name: 'isAdmin', type: TYPES.Bit, value: body.isAdmin })
+    }
+    if (body.emailAlias !== undefined) {
+      sets.push('EmailAlias = @emailAlias')
+      params.push({ name: 'emailAlias', type: TYPES.NVarChar, value: body.emailAlias ? body.emailAlias.toLowerCase() : null })
     }
 
     if (sets.length === 0) return json({ error: 'No fields to update' }, 400)

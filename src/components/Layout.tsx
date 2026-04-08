@@ -32,7 +32,7 @@ export function Layout() {
       <aside className="w-[260px] bg-gray-950 text-white flex flex-col border-r border-white/5">
         {/* Brand */}
         <div className="px-5 py-5">
-          <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-6 mb-2 opacity-90" />
+          <img src="/img/unikal_logo_white.png" alt="Unikal" className="h-6 mb-2 opacity-90" />
           <div className="text-[11px] text-slate-400 font-medium tracking-wide">Agent AI Services</div>
         </div>
 

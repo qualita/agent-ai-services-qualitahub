@@ -201,7 +201,7 @@ export function DashboardPage() {
                   borderRadius: 6,
                 }}
               />
-              <Bar dataKey="count" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#00A89C" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -245,8 +245,8 @@ export function DashboardPage() {
                 <AreaChart data={stats.executionTrend}>
                   <defs>
                     <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#00A89C" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#00A89C" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="gradSuccess" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -276,7 +276,7 @@ export function DashboardPage() {
                     }}
                   />
                   {trendMode === 'total' && (
-                    <Area type="monotone" dataKey="total" name="Total" stroke="#6366f1" fill="url(#gradTotal)" strokeWidth={2} />
+                    <Area type="monotone" dataKey="total" name="Total" stroke="#00A89C" fill="url(#gradTotal)" strokeWidth={2} />
                   )}
                   {trendMode === 'status' && (
                     <Area type="monotone" dataKey="success" name="Completadas" stroke="#10b981" fill="url(#gradSuccess)" strokeWidth={2} />

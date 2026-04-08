@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/AuthProvider'
-import { AlertCircle, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { AlertCircle, Loader2, ShieldCheck } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
 export function LoginPage() {
@@ -11,7 +11,7 @@ export function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex flex-col">
       {/* Top bar */}
       <header className="flex items-center gap-3 px-6 py-4">
-        <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-5 opacity-80" />
+        <img src="/img/unikal_logo_white.png" alt="Unikal" className="h-5 opacity-80" />
         <div className="h-4 w-px bg-white/20" />
         <span className="text-sm text-white/50 font-medium">Agent AI Services</span>
       </header>
@@ -23,9 +23,9 @@ export function LoginPage() {
             {/* Logo area */}
             <div className="pt-10 pb-6 text-center">
               <img
-                src="/img/qualitahub_logo_white.png"
-                alt="QualitaHub"
-                className="h-6 mx-auto brightness-0"
+                src="/img/unikal_logo_dark.png"
+                alt="Unikal"
+                className="h-12 mx-auto"
               />
               <h1 className="text-2xl font-semibold text-slate-900 mt-5">Bienvenido</h1>
               <p className="text-sm text-slate-500 mt-1">
@@ -67,28 +67,6 @@ export function LoginPage() {
                 )}
                 <span>{loading ? 'Verificando sesión...' : 'Continuar con Microsoft'}</span>
               </button>
-            </div>
-
-            {/* Divider */}
-            <div className="mx-8">
-              <div className="border-t border-slate-100" />
-            </div>
-
-            {/* Features */}
-            <div className="px-8 py-5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-3">
-                Funcionalidades disponibles
-              </p>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-sm text-slate-600">
-                  <CheckCircle2 className="w-4 h-4 text-brand-500 flex-shrink-0" />
-                  Monitorización de ejecuciones de agentes
-                </li>
-                <li className="flex items-center gap-2 text-sm text-slate-600">
-                  <CheckCircle2 className="w-4 h-4 text-brand-500 flex-shrink-0" />
-                  Gestión de usuarios y permisos
-                </li>
-              </ul>
             </div>
 
             {/* Footer */}

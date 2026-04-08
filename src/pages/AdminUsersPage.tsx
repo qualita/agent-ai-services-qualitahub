@@ -187,6 +187,7 @@ function UserFormModal({
 }) {
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
+  const [emailAlias, setEmailAlias] = useState(user?.emailAlias || '')
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin ?? false)
   const [isActive, setIsActive] = useState(user?.isActive ?? true)
   const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>(
@@ -231,6 +232,7 @@ function UserFormModal({
         await api.updateUser(user.id, {
           name,
           email,
+          emailAlias: emailAlias || undefined,
           isActive,
           isAdmin,
         })
@@ -243,6 +245,7 @@ function UserFormModal({
       } else {
         const created = await api.createUser({
           email,
+          emailAlias: emailAlias || undefined,
           name,
           isAdmin,
           groupIds: selectedGroupIds,
@@ -320,6 +323,18 @@ function UserFormModal({
                   className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
                 />
                 <p className="text-xs text-slate-400 mt-1">El usuario accederá con esta cuenta de Microsoft (Entra ID)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Alias</label>
+                <input
+                  type="email"
+                  value={emailAlias}
+                  onChange={(e) => setEmailAlias(e.target.value)}
+                  placeholder="nombre.apellido@qualitahub.com"
+                  className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
+                />
+                <p className="text-xs text-slate-400 mt-1">Email alternativo para vincular ejecuciones de agentes (ej. dominio antiguo)</p>
               </div>
 
               <div className="flex items-center gap-4">

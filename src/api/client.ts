@@ -115,9 +115,9 @@ export const api = {
 
   // Admin - Users
   getUsers: () => fetchApi<AppUserRecord[]>('/mgmt/users'),
-  createUser: (data: { email: string; name: string; isAdmin?: boolean; groupIds?: number[] }) =>
+  createUser: (data: { email: string; emailAlias?: string; name: string; isAdmin?: boolean; groupIds?: number[] }) =>
     fetchApiMutate<{ id: number }>('/mgmt/users', 'POST', data),
-  updateUser: (id: number, data: { name?: string; email?: string; isActive?: boolean; isAdmin?: boolean }) =>
+  updateUser: (id: number, data: { name?: string; email?: string; emailAlias?: string; isActive?: boolean; isAdmin?: boolean }) =>
     fetchApiMutate<{ success: boolean }>(`/mgmt/users/${id}`, 'PUT', data),
   updateUserGroups: (id: number, groupIds: number[]) =>
     fetchApiMutate<{ success: boolean }>(`/mgmt/users/${id}/groups`, 'PUT', { groupIds }),

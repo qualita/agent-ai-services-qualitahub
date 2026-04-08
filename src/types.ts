@@ -117,6 +117,7 @@ export interface AuthUser {
 export interface AppUserRecord {
   id: number
   email: string
+  emailAlias: string | null
   name: string
   isAdmin: boolean
   isActive: boolean

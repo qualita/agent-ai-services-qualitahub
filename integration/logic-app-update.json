@@ -56,13 +56,13 @@
           "type": "Http",
           "inputs": {
             "method": "GET",
-            "uri": "https://salmon-field-0cfd11603.4.azurestaticapps.net/api/auth/check-access",
+            "uri": "https://brave-island-0d9d72603.1.azurestaticapps.net/api/auth/check-access",
             "queries": {
               "userEmail": "@{triggerBody()?['from']}",
-              "agentCode": "AGT-0001"
+              "agentCode": "AGT-0005"
             },
             "headers": {
-              "X-API-Key": "aais_AGT-0001_e39f58f257616785bde42f075db78f669c527d61cef6d740"
+              "X-API-Key": "aais_AGT-0005_c1961d5c31107834558dbc8fc7a52af1d5d21878e97cedbf"
             }
           },
           "runAfter": {}
@@ -168,7 +168,7 @@
                   "runStatus": "Failed",
                   "runError": {
                     "code": "Unauthorized",
-                    "message": "User @{triggerBody()?['from']} does not have access to agent AGT-0001. Reason: @{body('Parse_Access_Response')?['reason']} - @{body('Parse_Access_Response')?['message']}"
+                    "message": "User @{triggerBody()?['from']} does not have access to agent AGT-0005. Reason: @{body('Parse_Access_Response')?['reason']} - @{body('Parse_Access_Response')?['message']}"
                   }
                 },
                 "runAfter": {

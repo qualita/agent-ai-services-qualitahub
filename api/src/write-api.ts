@@ -571,9 +571,9 @@ app.http('authCheckAccess', {
     const agent = agents[0]
     const agentId = agent.Id as number
 
-    // Look up the user
+    // Look up the user (match on Email or EmailAlias for cross-tenant support)
     const users = await query(
-      `SELECT Id, Email, Name, IsAdmin FROM AppUser WHERE Email = @email AND IsActive = 1`,
+      `SELECT Id, Email, Name, IsAdmin FROM AppUser WHERE (Email = @email OR EmailAlias = @email) AND IsActive = 1`,
       [{ name: 'email', type: TYPES.NVarChar, value: userEmail }]
     )
     if (users.length === 0) {

@@ -121,7 +121,7 @@ export function ExecutionDetailPage() {
       <div className="flex gap-6 items-start mb-6">
         {/* Left: Combined header + resumen card */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white rounded-lg border border-slate-200 p-6">
+          <div className="bg-white rounded-xl border border-slate-200/60 p-6 shadow-sm">
             {/* Encabezado */}
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -178,7 +178,7 @@ export function ExecutionDetailPage() {
             </div>
 
             {detail.errorMessage && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded p-3">
+              <div className="mt-4 bg-red-50 border border-red-200/60 rounded-xl p-3">
                 <p className="text-xs font-medium text-red-700 mb-1">Error</p>
                 <p className="text-sm text-red-600 font-mono whitespace-pre-wrap">
                   {detail.errorMessage}
@@ -237,7 +237,7 @@ export function ExecutionDetailPage() {
 
         {/* Right: Steps sidebar */}
         <div className="w-72 shrink-0 sticky top-8">
-          <div className="bg-white rounded-lg border border-slate-200">
+          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
             <div className="flex items-center gap-2 p-4 border-b border-slate-100">
               <ListOrdered className="w-4 h-4 text-slate-500" />
               <span className="text-sm font-semibold text-slate-900">Steps</span>
@@ -377,7 +377,7 @@ function CollapsibleSection({
   headerExtra?: React.ReactNode
 }) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200">
+    <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
       <div className="flex items-center justify-between p-4">
         <button
           onClick={onToggle}

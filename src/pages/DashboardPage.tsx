@@ -123,7 +123,7 @@ export function DashboardPage() {
             Resumen de la actividad de ejecución de agentes
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-white border border-slate-200/60 rounded-xl px-3 py-2 shadow-sm">
           <Calendar className="w-4 h-4 text-slate-400" />
           <button
             onClick={() => setMonthOffset((o) => o - 1)}
@@ -164,13 +164,13 @@ export function DashboardPage() {
         {kpis.map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white rounded-lg border border-slate-200 p-5"
+            className="bg-white rounded-xl border border-slate-200/60 p-5 shadow-sm hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 {kpi.label}
               </span>
-              <div className={cn('w-8 h-8 rounded flex items-center justify-center', kpi.bg)}>
+              <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', kpi.bg)}>
                 <kpi.icon className={cn('w-4 h-4', kpi.color)} />
               </div>
             </div>
@@ -180,7 +180,7 @@ export function DashboardPage() {
       </div>
 
       {/* Executions by Agent */}
-      <div className="bg-white rounded-lg border border-slate-200 p-5 mb-6">
+      <div className="bg-white rounded-xl border border-slate-200/60 p-5 mb-6 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900 mb-4">
           Ejecuciones por Agente
         </h2>
@@ -210,7 +210,7 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Execution Trend */}
         {stats.executionTrend && stats.executionTrend.length > 0 ? (
-          <div className="bg-white rounded-lg border border-slate-200 p-5">
+          <div className="bg-white rounded-xl border border-slate-200/60 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-slate-900">
                 Tendencia ({monthLabel})
@@ -293,7 +293,7 @@ export function DashboardPage() {
         )}
 
         {/* Status Distribution */}
-        <div className="bg-white rounded-lg border border-slate-200 p-5">
+        <div className="bg-white rounded-xl border border-slate-200/60 p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-900 mb-4">
             Distribución por Estado
           </h2>
@@ -342,7 +342,7 @@ export function DashboardPage() {
       </div>
 
       {/* Agents list */}
-      <div className="bg-white rounded-lg border border-slate-200 p-5">
+      <div className="bg-white rounded-xl border border-slate-200/60 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-slate-900">Agentes</h2>
           <TrendingUp className="w-4 h-4 text-slate-400" />
@@ -355,7 +355,7 @@ export function DashboardPage() {
               className="flex items-center justify-between py-2.5 px-3 rounded hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-brand-50 rounded flex items-center justify-center">
+                <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
                   <Bot className="w-4 h-4 text-brand-600" />
                 </div>
                 <span className="text-sm font-medium text-slate-700">

@@ -52,7 +52,7 @@ export function AgentDetailPage() {
       </Link>
 
       {/* Agent header */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-slate-200/60 p-6 mb-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center">
             <Bot className="w-6 h-6 text-brand-600" />
@@ -114,7 +114,7 @@ export function AgentDetailPage() {
               <Settings className="w-3.5 h-3.5" />
               <span>Configuration</span>
             </div>
-            <pre className="text-xs text-slate-600 bg-slate-50 rounded p-3 overflow-x-auto max-h-40">
+            <pre className="text-xs text-slate-600 bg-slate-50 rounded-lg p-3 overflow-x-auto max-h-40">
               {agent.configJson}
             </pre>
           </div>
@@ -122,8 +122,8 @@ export function AgentDetailPage() {
       </div>
 
       {/* Recent executions */}
-      <div className="bg-white rounded-lg border border-slate-200">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Play className="w-4 h-4 text-slate-500" />
             <h2 className="text-sm font-semibold text-slate-900">

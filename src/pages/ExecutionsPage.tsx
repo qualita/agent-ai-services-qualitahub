@@ -107,7 +107,7 @@ function AgentListView({ onSelect }: { onSelect: (id: number, name: string) => v
             Select an agent to view its execution history
           </p>
         </div>
-        <div className="flex items-center border border-slate-300 rounded-md overflow-hidden">
+        <div className="flex items-center border border-slate-200/60 rounded-xl overflow-hidden shadow-sm">
           <button
             onClick={() => setViewMode('cards')}
             className={cn(
@@ -144,7 +144,7 @@ function AgentListView({ onSelect }: { onSelect: (id: number, name: string) => v
             placeholder="Search agents..."
             value={agentSearch}
             onChange={(e) => setAgentSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white shadow-sm"
           />
         </div>
       )}
@@ -170,13 +170,13 @@ function AgentListView({ onSelect }: { onSelect: (id: number, name: string) => v
           </div>
         )
       ) : agents.length === 0 ? (
-        <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
+        <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center shadow-sm">
           <Inbox className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-500">No hay agentes disponibles</p>
           <p className="text-xs text-slate-400 mt-1">Los agentes aparecerán aquí cuando se configuren</p>
         </div>
       ) : filteredAgents.length === 0 ? (
-        <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
+        <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center shadow-sm">
           <SearchX className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm font-medium text-slate-500">Sin resultados</p>
           <p className="text-xs text-slate-400 mt-1">Ningún agente coincide con tu búsqueda</p>
@@ -188,10 +188,10 @@ function AgentListView({ onSelect }: { onSelect: (id: number, name: string) => v
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
+              <tr className="bg-slate-50/80 border-b border-slate-200/60">
                 <th className="text-left px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Agent</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Description</th>
                 <th className="text-center px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Total</th>
@@ -263,7 +263,7 @@ function AgentCard({ agent, onClick }: { agent: AgentSummary; onClick: () => voi
   return (
     <button
       onClick={onClick}
-      className="bg-white rounded-lg border border-slate-200 p-5 text-left hover:border-brand-300 hover:shadow-md transition-all group"
+      className="bg-white rounded-xl border border-slate-200/60 p-5 text-left hover:border-brand-300 hover:shadow-lg transition-all group shadow-sm"
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -415,7 +415,7 @@ function AgentExecutionsView({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by trigger or invoked by..."
-            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
+            className="w-full pl-9 pr-3 py-2 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 shadow-sm"
           />
         </div>
         <div className="relative">
@@ -423,7 +423,7 @@ function AgentExecutionsView({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="pl-9 pr-8 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 appearance-none"
+            className="pl-9 pr-8 py-2 border border-slate-200/60 rounded-xl text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 appearance-none shadow-sm"
           >
             <option value="">Todos los estados</option>
             <option value="SUCCESS">Completado</option>
@@ -437,7 +437,7 @@ function AgentExecutionsView({
           <select
             value={datePreset}
             onChange={(e) => setDatePreset(e.target.value as DatePreset)}
-            className="px-2 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 appearance-none pr-8"
+            className="px-2 py-2 border border-slate-200/60 rounded-xl text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 appearance-none pr-8 shadow-sm"
           >
             {DATE_PRESETS.map((p) => (
               <option key={p.value} value={p.value}>{p.label}</option>
@@ -449,14 +449,14 @@ function AgentExecutionsView({
                 type="date"
                 value={customFrom}
                 onChange={(e) => setCustomFrom(e.target.value)}
-                className="px-2 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
+                className="px-2 py-2 border border-slate-200/60 rounded-xl text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 shadow-sm"
               />
               <span className="text-sm text-slate-400">—</span>
               <input
                 type="date"
                 value={customTo}
                 onChange={(e) => setCustomTo(e.target.value)}
-                className="px-2 py-2 border border-slate-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
+                className="px-2 py-2 border border-slate-200/60 rounded-xl text-sm bg-white focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600 shadow-sm"
               />
             </>
           )}
@@ -464,7 +464,7 @@ function AgentExecutionsView({
         <button
           onClick={() => refetch()}
           disabled={isFetching}
-          className="flex items-center gap-1.5 px-3 py-2 border border-slate-300 rounded-md text-sm text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-colors disabled:opacity-50 shrink-0"
+          className="flex items-center gap-1.5 px-3 py-2 border border-slate-200/60 rounded-xl text-sm text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors disabled:opacity-50 shrink-0 shadow-sm"
           title="Actualizar"
         >
           <RefreshCw className={cn('w-4 h-4', isFetching && 'animate-spin')} />
@@ -473,11 +473,11 @@ function AgentExecutionsView({
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
+              <tr className="bg-slate-50/80 border-b border-slate-200/60">
                 <th className="text-left px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Execution</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Status</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Trigger</th>

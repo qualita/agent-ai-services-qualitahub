@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Play,
   LogOut,
-  ChevronRight,
   Users,
   FolderKey,
 } from 'lucide-react'
@@ -28,17 +27,19 @@ export function Layout() {
   }
 
   return (
-    <div className="flex h-screen bg-qhub-cream-light">
+    <div className="flex h-screen bg-slate-50">
       {/* Sidebar */}
-      <aside className="w-60 bg-qhub-green text-white flex flex-col">
+      <aside className="w-[260px] bg-gray-950 text-white flex flex-col border-r border-white/5">
         {/* Brand */}
-        <div className="px-5 py-5 border-b border-qhub-green-light/30">
-          <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-7 mb-1.5" />
-          <div className="text-[11px] text-qhub-cream-dark leading-tight">Agent AI Services</div>
+        <div className="px-5 py-5">
+          <img src="/img/qualitahub_logo_white.png" alt="QualitaHub" className="h-6 mb-2 opacity-90" />
+          <div className="text-[11px] text-slate-400 font-medium tracking-wide">Agent AI Services</div>
         </div>
 
+        <div className="mx-4 mb-3 border-t border-white/[0.06]" />
+
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 space-y-1">
           {navigation.map((item) => (
             <NavLink
               key={item.to}
@@ -46,23 +47,22 @@ export function Layout() {
               end={item.to === '/'}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                   isActive
-                    ? 'bg-brand-500 text-white'
-                    : 'text-qhub-cream/70 hover:bg-qhub-green-light hover:text-white'
+                    ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/20'
+                    : 'text-slate-400 hover:bg-white/[0.06] hover:text-white'
                 )
               }
             >
-              <item.icon className="w-4 h-4" />
+              <item.icon className="w-[18px] h-[18px]" />
               <span>{item.name}</span>
-              <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-40" />
             </NavLink>
           ))}
 
           {user?.isAdmin && (
             <>
-              <div className="pt-4 pb-1 px-3">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-qhub-cream-dark/50">
+              <div className="pt-5 pb-2 px-3">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                   Administration
                 </span>
               </div>
@@ -72,16 +72,15 @@ export function Layout() {
                   to={item.to}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                       isActive
-                        ? 'bg-brand-500 text-white'
-                        : 'text-qhub-cream/70 hover:bg-qhub-green-light hover:text-white'
+                        ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/20'
+                        : 'text-slate-400 hover:bg-white/[0.06] hover:text-white'
                     )
                   }
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-[18px] h-[18px]" />
                   <span>{item.name}</span>
-                  <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-40" />
                 </NavLink>
               ))}
             </>
@@ -89,22 +88,23 @@ export function Layout() {
         </nav>
 
         {/* User section */}
-        <div className="px-3 py-4 border-t border-qhub-green-light/30">
+        <div className="px-3 py-4">
+          <div className="mx-1 mb-3 border-t border-white/[0.06]" />
           <div className="flex items-center gap-3 px-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-medium uppercase">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-semibold uppercase shadow-lg shadow-brand-600/20">
               {user?.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{user?.name}</div>
-              <div className="text-[11px] text-qhub-cream-dark/60 truncate">{user?.email}</div>
+              <div className="text-sm font-medium truncate text-slate-200">{user?.name}</div>
+              <div className="text-[11px] text-slate-500 truncate">{user?.email}</div>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3 py-1.5 text-xs text-qhub-cream/50 hover:text-white hover:bg-qhub-green-light rounded transition-colors"
+            className="flex items-center gap-2 w-full px-3 py-2 text-xs text-slate-500 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Sign out</span>
+            <span>Cerrar sesión</span>
           </button>
         </div>
       </aside>

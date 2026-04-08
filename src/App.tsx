@@ -46,7 +46,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-qhub-cream-light flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="text-center">
         <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm text-slate-500">Verificando sesión...</p>

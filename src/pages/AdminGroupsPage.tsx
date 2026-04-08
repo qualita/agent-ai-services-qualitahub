@@ -35,14 +35,14 @@ export function AdminGroupsPage() {
             setEditingGroup(null)
             setModalOpen(true)
           }}
-          className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-brand-700 transition-colors"
+          className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Add Group
         </button>
       </div>
 
-      <div className="bg-white rounded border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/60 overflow-hidden shadow-sm">
         {isLoading ? (
           <div className="p-8 text-center text-sm text-slate-400">Loading groups...</div>
         ) : groups.length === 0 ? (
@@ -53,7 +53,7 @@ export function AdminGroupsPage() {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 border-b border-slate-200">
+            <thead className="bg-slate-50/80 border-b border-slate-200/60">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-slate-600">Name</th>
                 <th className="text-left px-4 py-3 font-medium text-slate-600">Description</th>

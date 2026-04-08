@@ -187,7 +187,6 @@ function UserFormModal({
 }) {
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
-  const [password, setPassword] = useState('')
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin ?? false)
   const [isActive, setIsActive] = useState(user?.isActive ?? true)
   const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>(
@@ -224,10 +223,6 @@ function UserFormModal({
       setError('Name and email are required')
       return
     }
-    if (!user && !password) {
-      setError('Password is required for new users')
-      return
-    }
 
     setError('')
     setSaving(true)
@@ -238,7 +233,6 @@ function UserFormModal({
           email,
           isActive,
           isAdmin,
-          ...(password ? { password } : {}),
         })
         await api.updateUserGroups(user.id, selectedGroupIds)
         const agentsList = Object.entries(directAgentAccess).map(([id, level]) => ({
@@ -250,7 +244,6 @@ function UserFormModal({
         const created = await api.createUser({
           email,
           name,
-          password,
           isAdmin,
           groupIds: selectedGroupIds,
         })
@@ -323,25 +316,10 @@ function UserFormModal({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nombre.apellido@unikal.tech"
                   className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Password{' '}
-                  {user && (
-                    <span className="text-xs text-slate-400 font-normal">
-                      (leave empty to keep current)
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
-                />
+                <p className="text-xs text-slate-400 mt-1">El usuario accederá con esta cuenta de Microsoft (Entra ID)</p>
               </div>
 
               <div className="flex items-center gap-4">

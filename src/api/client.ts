@@ -3,27 +3,29 @@ import type { Agent, AgentSummary, Execution, ExecutionDetail, DashboardStats, A
 const API_BASE = '/api'
 
 async function fetchApi<T>(path: string): Promise<T> {
-  const user = sessionStorage.getItem('auth_user')
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (user) {
-    headers['x-ms-client-principal'] = btoa(user)
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (res.status === 401) {
+    sessionStorage.removeItem('auth_user')
+    window.location.href = '/login'
+    throw new Error('Session expired')
   }
-  const res = await fetch(`${API_BASE}${path}`, { headers })
   if (!res.ok) throw new Error(`API error: ${res.status}`)
   return res.json()
 }
 
 async function fetchApiMutate<T>(path: string, method: string, body?: unknown): Promise<T> {
-  const user = sessionStorage.getItem('auth_user')
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (user) {
-    headers['x-ms-client-principal'] = btoa(user)
-  }
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers,
+    headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
   })
+  if (res.status === 401) {
+    sessionStorage.removeItem('auth_user')
+    window.location.href = '/login'
+    throw new Error('Session expired')
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `Error ${res.status}` }))
     throw new Error(err.error || `API error: ${res.status}`)
@@ -109,14 +111,13 @@ export const api = {
   },
 
   // Auth
-  login: (email: string, password: string) =>
-    fetchApiMutate<AuthUser>('/auth/login', 'POST', { email, password }),
+  getMe: () => fetchApi<AuthUser>('/auth/me'),
 
   // Admin - Users
   getUsers: () => fetchApi<AppUserRecord[]>('/mgmt/users'),
-  createUser: (data: { email: string; name: string; password: string; isAdmin?: boolean; groupIds?: number[] }) =>
+  createUser: (data: { email: string; name: string; isAdmin?: boolean; groupIds?: number[] }) =>
     fetchApiMutate<{ id: number }>('/mgmt/users', 'POST', data),
-  updateUser: (id: number, data: { name?: string; email?: string; password?: string; isActive?: boolean; isAdmin?: boolean }) =>
+  updateUser: (id: number, data: { name?: string; email?: string; isActive?: boolean; isAdmin?: boolean }) =>
     fetchApiMutate<{ success: boolean }>(`/mgmt/users/${id}`, 'PUT', data),
   updateUserGroups: (id: number, groupIds: number[]) =>
     fetchApiMutate<{ success: boolean }>(`/mgmt/users/${id}/groups`, 'PUT', { groupIds }),

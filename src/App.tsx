@@ -11,8 +11,9 @@ import { AdminUsersPage } from '@/pages/AdminUsersPage'
 import { AdminGroupsPage } from '@/pages/AdminGroupsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const location = useLocation()
+  if (loading) return <LoadingScreen />
   if (!user) {
     sessionStorage.setItem('redirectAfterLogin', location.pathname + location.search)
     return <Navigate to="/login" replace />
@@ -21,8 +22,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const location = useLocation()
+  if (loading) return <LoadingScreen />
   if (!user) {
     sessionStorage.setItem('redirectAfterLogin', location.pathname + location.search)
     return <Navigate to="/login" replace />
@@ -32,13 +34,25 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  if (loading) return <LoadingScreen />
   if (user) {
     const redirect = sessionStorage.getItem('redirectAfterLogin') || '/'
     sessionStorage.removeItem('redirectAfterLogin')
     return <Navigate to={redirect} replace />
   }
   return <>{children}</>
+}
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-qhub-cream-light flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-slate-500">Verificando sesión...</p>
+      </div>
+    </div>
+  )
 }
 
 export default function App() {

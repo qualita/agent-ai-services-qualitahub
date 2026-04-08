@@ -96,6 +96,87 @@ app.http('authLogin', {
 })
 
 /* ──────────────────────────────────────────
+   GET /api/auth/me
+   Reads x-ms-client-principal (injected by SWA)
+   and returns the AppUser record with groups/access.
+   ────────────────────────────────────────── */
+app.http('authMe', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'auth/me',
+  handler: async (req: HttpRequest, _ctx: InvocationContext): Promise<HttpResponseInit> => {
+    const header = req.headers.get('x-ms-client-principal')
+    if (!header) return json({ error: 'Not authenticated' }, 401)
+
+    let email: string
+    try {
+      const decoded = JSON.parse(Buffer.from(header, 'base64').toString('utf-8'))
+      email = (decoded.userDetails ?? decoded.email ?? '').toLowerCase()
+      if (!email) return json({ error: 'No email in principal' }, 401)
+    } catch {
+      return json({ error: 'Invalid principal' }, 401)
+    }
+
+    const users = await query(
+      `SELECT Id, Email, Name, IsAdmin FROM AppUser WHERE Email = @email AND IsActive = 1`,
+      [{ name: 'email', type: TYPES.NVarChar, value: email }]
+    )
+    if (users.length === 0) return json({ error: 'User not authorized' }, 403)
+
+    const user = users[0]
+    const isAdmin = user.IsAdmin === true
+
+    const groups = await query(
+      `SELECT g.Id, g.Name
+       FROM AccessGroup g
+       JOIN UserGroup ug ON g.Id = ug.GroupId
+       WHERE ug.UserId = @userId AND g.IsActive = 1`,
+      [{ name: 'userId', type: TYPES.BigInt, value: user.Id }]
+    )
+
+    let agentAccess: { agentId: number; accessLevel: string }[] = []
+    if (!isAdmin) {
+      const accessRows = await query(
+        `SELECT AgentId, AccessLevel FROM (
+           SELECT ga.AgentId, ga.AccessLevel
+           FROM GroupAgent ga
+           JOIN UserGroup ug ON ga.GroupId = ug.GroupId
+           WHERE ug.UserId = @userId
+           UNION ALL
+           SELECT ua.AgentId, ua.AccessLevel
+           FROM UserAgent ua
+           WHERE ua.UserId = @userId
+         ) allAccess`,
+        [{ name: 'userId', type: TYPES.BigInt, value: user.Id }]
+      )
+
+      const accessMap = new Map<number, string>()
+      for (const r of accessRows) {
+        const aid = r.AgentId as number
+        const lvl = r.AccessLevel as string
+        const current = accessMap.get(aid)
+        if (!current || lvl === 'FULL') {
+          accessMap.set(aid, lvl)
+        }
+      }
+      agentAccess = Array.from(accessMap.entries()).map(([agentId, accessLevel]) => ({
+        agentId,
+        accessLevel,
+      }))
+    }
+
+    return json({
+      id: user.Id,
+      email: user.Email,
+      name: user.Name,
+      isAdmin,
+      groups: groups.map((g: Record<string, unknown>) => ({ id: g.Id, name: g.Name })),
+      agentAccess,
+    })
+  },
+})
+
+/* ──────────────────────────────────────────
    GET /api/mgmt/users
    ────────────────────────────────────────── */
 app.http('adminListUsers', {
@@ -168,8 +249,8 @@ app.http('adminCreateUser', {
       return json({ error: 'Invalid request body' }, 400)
     }
 
-    if (!body.email || !body.name || !body.password) {
-      return json({ error: 'Email, name, and password are required' }, 400)
+    if (!body.email || !body.name) {
+      return json({ error: 'Email and name are required' }, 400)
     }
 
     const existing = await query(
@@ -185,7 +266,7 @@ app.http('adminCreateUser', {
       [
         { name: 'email', type: TYPES.NVarChar, value: body.email.toLowerCase() },
         { name: 'name', type: TYPES.NVarChar, value: body.name },
-        { name: 'password', type: TYPES.NVarChar, value: body.password },
+        { name: 'password', type: TYPES.NVarChar, value: body.password || 'entra-id' },
         { name: 'isAdmin', type: TYPES.Bit, value: body.isAdmin ?? false },
       ]
     )

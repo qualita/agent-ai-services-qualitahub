@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/auth/AuthProvider'
 import {
   LayoutDashboard,
@@ -22,11 +22,9 @@ const adminNavigation = [
 
 export function Layout() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
   }
 
   return (

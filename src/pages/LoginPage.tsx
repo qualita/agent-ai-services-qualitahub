@@ -1,33 +1,11 @@
-import { useState } from 'react'
 import { useAuth } from '@/auth/AuthProvider'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 
 export function LoginPage() {
-  const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [step, setStep] = useState<'email' | 'password'>('email')
-
-  const handleEmailNext = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) {
-      setError('Introduce your email address.')
-      return
-    }
-    setError('')
-    setStep('password')
-  }
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    const ok = await login(email, password)
-    setLoading(false)
-    if (!ok) setError('Incorrect credentials. Use admin@agentai.demo or viewer@agentai.demo with password demo123.')
-  }
+  const { login, loading } = useAuth()
+  const [searchParams] = useSearchParams()
+  const error = searchParams.get('error')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-qhub-cream-light to-qhub-cream flex items-center justify-center p-4">
@@ -40,89 +18,50 @@ export function LoginPage() {
           </div>
 
           <div className="p-8">
-            {/* Sign in heading */}
-            <div className="mb-8">
-              <div className="text-base font-semibold text-slate-800 leading-tight">Sign in</div>
+            {/* Heading */}
+            <div className="mb-2">
+              <div className="text-lg font-semibold text-slate-800 leading-tight">Bienvenido</div>
             </div>
+            <p className="text-sm text-slate-500 mb-8">
+              Dashboard de monitorización de Agent AI Services
+            </p>
 
-            {step === 'email' ? (
-              <form onSubmit={handleEmailNext}>
-                <p className="text-sm text-slate-600 mb-4">
-                  Use your organizational account to access{' '}
-                  <span className="font-semibold text-slate-800">Agent AI Services</span>.
-                </p>
+            <p className="text-sm text-slate-600 mb-6">
+              Accede con tu cuenta corporativa de Microsoft para continuar.
+            </p>
 
-                <div className="mb-4">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="user@organization.com"
-                    className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
-                    autoFocus
-                    autoComplete="email"
-                  />
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 text-red-600 text-xs mb-4">
-                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <p className="text-xs text-slate-400 mb-6">
-                  Authentication powered by Microsoft Entra ID.
-                </p>
-
-                <button
-                  type="submit"
-                  className="w-full bg-brand-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-brand-700 transition-colors"
-                >
-                  Next
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={handleLogin}>
-                <button
-                  type="button"
-                  onClick={() => { setStep('email'); setError('') }}
-                  className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800 mb-4"
-                >
-                  <span className="text-xs">&larr;</span>
-                  <span>{email}</span>
-                </button>
-
-                <p className="text-sm text-slate-600 mb-4">Enter password</p>
-
-                <div className="mb-4">
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600"
-                    autoFocus
-                    autoComplete="current-password"
-                  />
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 text-red-600 text-xs mb-4">
-                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-brand-600 text-white py-2 px-4 rounded text-sm font-medium hover:bg-brand-700 transition-colors disabled:opacity-60"
-                >
-                  {loading ? 'Signing in...' : 'Sign in'}
-                </button>
-              </form>
+            {error && (
+              <div className="flex items-center gap-2 text-red-600 text-xs mb-4 bg-red-50 px-3 py-2 rounded">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>
+                  {error === 'unauthorized'
+                    ? 'Tu cuenta no tiene acceso a esta aplicación. Contacta al administrador.'
+                    : 'Error de autenticación. Inténtalo de nuevo.'}
+                </span>
+              </div>
             )}
+
+            <button
+              onClick={login}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 bg-brand-600 text-white py-2.5 px-4 rounded text-sm font-medium hover:bg-brand-700 transition-colors disabled:opacity-60"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none">
+                  <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                  <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                  <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                  <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                </svg>
+              )}
+              <span>{loading ? 'Verificando sesión...' : 'Continuar con Microsoft'}</span>
+            </button>
+
+            <p className="text-xs text-slate-400 mt-6 text-center">
+              Conexión segura mediante Microsoft Entra ID
+            </p>
           </div>
 
           {/* Footer */}
@@ -131,15 +70,6 @@ export function LoginPage() {
               <span>Agent AI Services</span>
               <span>QualitaHub</span>
             </div>
-          </div>
-        </div>
-
-        {/* Demo credentials hint */}
-        <div className="mt-4 bg-white rounded border border-slate-200 p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Demo credentials</p>
-          <div className="space-y-1 text-xs text-slate-600">
-            <p><span className="font-mono bg-slate-100 px-1 rounded">admin@agentai.demo</span> / <span className="font-mono bg-slate-100 px-1 rounded">demo123</span> — Full access</p>
-            <p><span className="font-mono bg-slate-100 px-1 rounded">viewer@agentai.demo</span> / <span className="font-mono bg-slate-100 px-1 rounded">demo123</span> — Restricted view</p>
           </div>
         </div>
       </div>

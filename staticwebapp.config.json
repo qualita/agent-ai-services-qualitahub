@@ -32,6 +32,10 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/executions/*",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
       "route": "/api/*",
       "allowedRoles": ["authenticated"]
     }

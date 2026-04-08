@@ -19,6 +19,10 @@ import {
   FileStack,
   Receipt,
   Hash,
+  Package,
+  Building2,
+  FileText,
+  Layers,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { ExecutionDetail, InputRecord, OutputRecord } from '@/types'
@@ -31,6 +35,18 @@ interface EmailReplySummary {
   total_pagos: number
   total_facturas: number
   referencia_pago: string
+  warnings: Array<Record<string, unknown>>
+}
+
+interface OrderSummary {
+  numero_pedido: number
+  tipo_pedido: string
+  compania: string
+  cliente: string
+  cliente_an8: number
+  po_cliente: string
+  cif_cliente: string
+  total_lineas: number
   warnings: Array<Record<string, unknown>>
 }
 
@@ -79,10 +95,21 @@ export function ExecutionDetailPage() {
     }
   }, [detail])
 
-  // Filter out EMAIL_REPLY_SUMMARY from regular outputs (already shown in summary card)
+  const orderSummary = useMemo<OrderSummary | null>(() => {
+    if (!detail) return null
+    const orderOutput = detail.outputs.find((o) => o.outputType === 'ORDER_SUMMARY')
+    if (!orderOutput?.contentText) return null
+    try {
+      return JSON.parse(orderOutput.contentText) as OrderSummary
+    } catch {
+      return null
+    }
+  }, [detail])
+
+  // Filter out summary outputs from regular outputs (already shown in summary card)
   const displayOutputs = useMemo(() => {
     if (!detail) return []
-    return detail.outputs.filter((o) => o.outputType !== 'EMAIL_REPLY_SUMMARY')
+    return detail.outputs.filter((o) => o.outputType !== 'EMAIL_REPLY_SUMMARY' && o.outputType !== 'ORDER_SUMMARY')
   }, [detail])
 
 
@@ -232,10 +259,54 @@ export function ExecutionDetailPage() {
                 )}
               </>
             )}
+
+            {/* Divider + Resumen del Pedido */}
+            {orderSummary && (
+              <>
+                <div className="border-t border-slate-100 my-8" />
+                <h2 className="text-sm font-semibold text-slate-900 mb-3">Resumen del Pedido</h2>
+                <div className="divide-y divide-slate-100">
+                  {[
+                    { icon: Package, label: 'Nº Pedido', value: `#${orderSummary.numero_pedido}`, bold: true },
+                    { icon: FileText, label: 'Tipo', value: orderSummary.tipo_pedido },
+                    { icon: Building2, label: 'Compañía', value: orderSummary.compania },
+                    { icon: User, label: 'Cliente', value: `${orderSummary.cliente} (AN8: ${orderSummary.cliente_an8})` },
+                    { icon: Hash, label: 'CIF', value: orderSummary.cif_cliente },
+                    { icon: Receipt, label: 'PO Cliente', value: orderSummary.po_cliente },
+                    { icon: Layers, label: 'Líneas', value: String(orderSummary.total_lineas) },
+                  ].map((row) => {
+                    const Icon = row.icon
+                    return (
+                      <div key={row.label} className="flex items-start gap-2.5 py-2">
+                        <Icon className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                        <span className="text-[11px] text-slate-500 w-28 shrink-0 pt-[1px]">{row.label}</span>
+                        <span className={cn('text-sm text-slate-800', row.bold && 'font-semibold')}>
+                          {row.value}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {orderSummary.warnings.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    {orderSummary.warnings.map((w, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded px-3 py-2"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                        <p className="text-[11px] text-amber-800 leading-snug">
+                          {String(w.message ?? JSON.stringify(w))}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
-
-        {/* Right: Steps sidebar */}
         <div className="w-72 shrink-0 sticky top-8">
           <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
             <div className="flex items-center gap-2 p-4 border-b border-slate-100">

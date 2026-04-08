@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { cn, formatDate, formatDuration, statusColor, statusLabel, isRunning } from '@/lib/utils'
-import { FileInput, FileOutput, ListOrdered, FileText, Download, Loader2, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, Inbox, ClipboardList, User, Banknote, FileStack, Receipt, Hash, AlertTriangle } from 'lucide-react'
+import { FileInput, FileOutput, ListOrdered, FileText, Download, Loader2, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight, Inbox, ClipboardList, User, Banknote, FileStack, Receipt, Hash, AlertTriangle, Package, Building2, Layers } from 'lucide-react'
 import type { Execution, ExecutionDetail } from '@/types'
 import { Modal } from '@/components/Modal'
 import { api } from '@/api/client'
@@ -23,6 +23,18 @@ interface EmailReplySummary {
   total_pagos: number
   total_facturas: number
   referencia_pago: string
+  warnings: Array<Record<string, unknown>>
+}
+
+interface OrderSummary {
+  numero_pedido: number
+  tipo_pedido: string
+  compania: string
+  cliente: string
+  cliente_an8: number
+  po_cliente: string
+  cif_cliente: string
+  total_lineas: number
   warnings: Array<Record<string, unknown>>
 }
 
@@ -106,6 +118,17 @@ export function ExecutionFilesModal({
     }
   }, [detail])
 
+  const orderSummary = useMemo<OrderSummary | null>(() => {
+    if (!detail) return null
+    const orderOutput = detail.outputs.find((o) => o.outputType === 'ORDER_SUMMARY')
+    if (!orderOutput?.contentText) return null
+    try {
+      return JSON.parse(orderOutput.contentText) as OrderSummary
+    } catch {
+      return null
+    }
+  }, [detail])
+
   const files: FileItem[] = useMemo(() => {
     // Use detail data (with contentText) when available, fall back to exec summaries
     if (tab === 'inputs') {
@@ -120,7 +143,7 @@ export function ExecutionFilesModal({
       }))
     }
     if (tab === 'outputs') {
-      const outputs = (detail?.outputs ?? exec.outputs).filter((o) => o.outputType !== 'EMAIL_REPLY_SUMMARY')
+      const outputs = (detail?.outputs ?? exec.outputs).filter((o) => o.outputType !== 'EMAIL_REPLY_SUMMARY' && o.outputType !== 'ORDER_SUMMARY')
       return outputs.map((o) => ({
         id: o.outputId,
         type: o.outputType,
@@ -140,7 +163,7 @@ export function ExecutionFilesModal({
 
   const selectedFile = files.find((f) => f.id === selectedId) ?? null
 
-  const displayOutputCount = summary ? exec.outputCount - 1 : exec.outputCount
+  const displayOutputCount = exec.outputCount - (summary ? 1 : 0) - (orderSummary ? 1 : 0)
 
   const tabs: { key: Tab; label: string; count: number | null; icon: typeof FileInput }[] = [
     { key: 'resumen', label: 'Resumen', count: null, icon: ClipboardList },
@@ -252,13 +275,68 @@ export function ExecutionFilesModal({
                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
                 <span className="text-sm">Cargando resumen...</span>
               </div>
-            ) : !summary ? (
+            ) : !summary && !orderSummary ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Inbox className="w-8 h-8 text-slate-300 mb-2" />
                 <p className="text-sm text-slate-500">Sin resumen disponible</p>
-                <p className="text-xs text-slate-400 mt-1">Esta ejecución no generó un resumen de cobro</p>
+                <p className="text-xs text-slate-400 mt-1">Esta ejecución no generó un resumen</p>
               </div>
-            ) : (
+            ) : orderSummary ? (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Resumen del Pedido</h3>
+                <div className="divide-y divide-slate-100 mb-6">
+                  {[
+                    { icon: Package, label: 'Nº Pedido', value: `#${orderSummary.numero_pedido}`, bold: true },
+                    { icon: FileText, label: 'Tipo', value: orderSummary.tipo_pedido },
+                    { icon: Building2, label: 'Compañía', value: orderSummary.compania },
+                    { icon: User, label: 'Cliente', value: `${orderSummary.cliente} (AN8: ${orderSummary.cliente_an8})` },
+                    { icon: Hash, label: 'CIF', value: orderSummary.cif_cliente },
+                    { icon: Receipt, label: 'PO Cliente', value: orderSummary.po_cliente },
+                    { icon: Layers, label: 'Líneas', value: String(orderSummary.total_lineas) },
+                  ].map((row) => {
+                    const Icon = row.icon
+                    return (
+                      <div key={row.label} className="flex items-start gap-2.5 py-2.5">
+                        <Icon className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                        <span className="text-[11px] text-slate-500 w-28 shrink-0 pt-[1px]">{row.label}</span>
+                        <span className={cn('text-sm text-slate-800', row.bold && 'font-semibold')}>
+                          {row.value}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Warnings */}
+                {orderSummary.warnings.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      Alertas ({orderSummary.warnings.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {orderSummary.warnings.map((w, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded px-3 py-2"
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                          <p className="text-xs text-amber-800 leading-snug">
+                            {String(w.message ?? JSON.stringify(w))}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {orderSummary.warnings.length === 0 && (
+                  <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded px-3 py-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <p className="text-xs text-emerald-700">Sin alertas — pedido creado correctamente</p>
+                  </div>
+                )}
+              </div>
+            ) : summary ? (
               <div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-4">Resumen del Cobro</h3>
                 <div className="divide-y divide-slate-100 mb-6">
@@ -314,7 +392,7 @@ export function ExecutionFilesModal({
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
         ) : tab === 'steps' ? (
           /* ── Steps timeline ─────────────────────────── */

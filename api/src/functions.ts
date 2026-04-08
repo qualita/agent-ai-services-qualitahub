@@ -1,6 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import { query, TYPES } from './db.js'
-import { getBlobSasUrl } from './storage.js'
+import { getBlobSasUrl, downloadBlob } from './storage.js'
 import './admin.js'
 import './write-api.js'
 
@@ -560,6 +560,60 @@ app.http('fileSas', {
       return json({ url: sasUrl })
     } catch (err: any) {
       return json({ error: 'Failed to generate download URL' }, 500)
+    }
+  },
+})
+
+/* ──────────────────────────────────────────
+   File content proxy (avoids CORS on Blob Storage)
+   ────────────────────────────────────────── */
+app.http('fileContent', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'files/content',
+  handler: async (req: HttpRequest): Promise<HttpResponseInit> => {
+    const blobPath = req.query.get('path')
+    const isDownload = req.query.get('download') === '1'
+    const downloadName = req.query.get('filename') || undefined
+    if (!blobPath) {
+      return json({ error: 'Missing path query parameter' }, 400)
+    }
+
+    const rows = await query(
+      `SELECT TOP 1 StorageProvider AS providerCode, MimeType AS mimeType
+       FROM (
+         SELECT StorageProvider, MimeType FROM Input WHERE FilePath = @path
+         UNION ALL
+         SELECT StorageProvider, MimeType FROM Output WHERE FilePath = @path
+       ) f`,
+      [{ name: 'path', type: TYPES.NVarChar, value: blobPath }]
+    )
+
+    if (rows.length === 0) {
+      return json({ error: 'File not found' }, 404)
+    }
+
+    const providerCode = rows[0].providerCode as string
+    if (providerCode !== 'AZURE_BLOB') {
+      return json({ error: `Storage provider '${providerCode}' is not supported` }, 400)
+    }
+
+    try {
+      const content = await downloadBlob(blobPath)
+      const mimeType = (rows[0].mimeType as string) || 'application/octet-stream'
+      const headers: Record<string, string> = {
+        'Content-Type': mimeType,
+        'Cache-Control': 'private, max-age=300',
+      }
+      if (isDownload && downloadName) {
+        headers['Content-Disposition'] = `attachment; filename="${downloadName.replace(/"/g, '\\"')}"`
+      } else {
+        headers['Content-Disposition'] = 'inline'
+      }
+
+      return { status: 200, headers, body: content }
+    } catch (err: any) {
+      return json({ error: 'Failed to fetch file content' }, 500)
     }
   },
 })

@@ -43,7 +43,8 @@ export async function downloadFile(
   const name = stampedName(fileName ?? `file.${type.toLowerCase()}`)
   try {
     if (filePath) {
-      const { url } = await api.getFileSasUrl(filePath, name)
+      // Use same-origin content proxy to avoid CORS issues with Blob Storage
+      const url = api.getFileDownloadUrl(filePath, name)
       const res = await fetch(url)
       if (!res.ok) throw new Error('Download failed')
       const blob = await res.blob()
@@ -350,12 +351,7 @@ function BlobExcelViewer({ filePath }: { filePath: string }) {
 
   useEffect(() => {
     let cancelled = false
-    api.getFileSasUrl(filePath, undefined, true).then(({ url }) =>
-      fetch(url).then((res) => {
-        if (!res.ok) throw new Error('fetch failed')
-        return res.arrayBuffer()
-      })
-    ).then((buffer) => {
+    api.getFileContentBuffer(filePath).then((buffer) => {
       if (cancelled) return
       const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' })
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
@@ -410,21 +406,8 @@ function BlobExcelViewer({ filePath }: { filePath: string }) {
 }
 
 function BlobPdfViewer({ filePath }: { filePath: string }) {
-  const [url, setUrl] = useState<string | null>(null)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    api.getFileSasUrl(filePath, undefined, true).then(({ url }) => {
-      if (!cancelled) setUrl(url)
-    }).catch(() => {
-      if (!cancelled) setError(true)
-    })
-    return () => { cancelled = true }
-  }, [filePath])
-
-  if (error) return <PreviewError message="Error al cargar el PDF" />
-  if (!url) return <PreviewLoading />
+  // Use same-origin content proxy URL directly — no CORS issues
+  const url = api.getFileContentUrl(filePath)
   return (
     <iframe
       src={url}
@@ -436,21 +419,8 @@ function BlobPdfViewer({ filePath }: { filePath: string }) {
 }
 
 function BlobImageViewer({ filePath }: { filePath: string }) {
-  const [url, setUrl] = useState<string | null>(null)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    api.getFileSasUrl(filePath, undefined, true).then(({ url }) => {
-      if (!cancelled) setUrl(url)
-    }).catch(() => {
-      if (!cancelled) setError(true)
-    })
-    return () => { cancelled = true }
-  }, [filePath])
-
-  if (error) return <PreviewError message="Error al cargar la imagen" />
-  if (!url) return <PreviewLoading />
+  // Use same-origin content proxy URL directly — no CORS issues
+  const url = api.getFileContentUrl(filePath)
   return (
     <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 p-2">
       <img src={url} alt="Preview" className="max-w-full max-h-[500px] mx-auto rounded" />
@@ -464,12 +434,7 @@ function BlobTextViewer({ filePath, type, maxHeight }: { filePath: string; type:
 
   useEffect(() => {
     let cancelled = false
-    api.getFileSasUrl(filePath, undefined, true).then(({ url }) =>
-      fetch(url).then((res) => {
-        if (!res.ok) throw new Error('fetch failed')
-        return res.text()
-      })
-    ).then((text) => {
+    api.getFileContentText(filePath).then((text) => {
       if (!cancelled) setContent(text)
     }).catch(() => {
       if (!cancelled) setError(true)

@@ -109,6 +109,36 @@ export const api = {
     if (inline) params.set('mode', 'inline')
     return fetchApi<{ url: string }>(`/files/sas?${params.toString()}`)
   },
+  getFileContentUrl: (blobPath: string) => {
+    const params = new URLSearchParams({ path: blobPath })
+    return `${API_BASE}/files/content?${params.toString()}`
+  },
+  getFileDownloadUrl: (blobPath: string, filename: string) => {
+    const params = new URLSearchParams({ path: blobPath, download: '1', filename })
+    return `${API_BASE}/files/content?${params.toString()}`
+  },
+  getFileContentText: async (blobPath: string): Promise<string> => {
+    const url = `${API_BASE}/files/content?${new URLSearchParams({ path: blobPath })}`
+    const res = await fetch(url)
+    if (res.status === 401) {
+      sessionStorage.removeItem('auth_user')
+      window.location.href = '/login'
+      throw new Error('Session expired')
+    }
+    if (!res.ok) throw new Error(`File fetch failed: ${res.status}`)
+    return res.text()
+  },
+  getFileContentBuffer: async (blobPath: string): Promise<ArrayBuffer> => {
+    const url = `${API_BASE}/files/content?${new URLSearchParams({ path: blobPath })}`
+    const res = await fetch(url)
+    if (res.status === 401) {
+      sessionStorage.removeItem('auth_user')
+      window.location.href = '/login'
+      throw new Error('Session expired')
+    }
+    if (!res.ok) throw new Error(`File fetch failed: ${res.status}`)
+    return res.arrayBuffer()
+  },
 
   // Auth
   getMe: () => fetchApi<AuthUser>('/auth/me'),
